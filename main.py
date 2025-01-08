@@ -21,7 +21,6 @@ def check_and_install_requirements():
     missing = []
     
     for requirement in requirements:
-        # Remove version specifiers
         package_name = requirement.split('>=')[0].split('==')[0].split('>')[0].strip()
         if package_name.lower() not in installed:
             missing.append(requirement)

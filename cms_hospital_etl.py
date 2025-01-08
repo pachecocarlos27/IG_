@@ -15,13 +15,12 @@ class CMSHospitalETL:
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.INFO)
         
-        # Create a more organized data directory structure
+        
         self.base_dir = Path("data")
         self.raw_dir = self.base_dir / "raw"
         self.processed_dir = self.base_dir / "processed"
         self.metadata_dir = self.base_dir / "metadata"
         
-        # Create all directories
         for dir_path in [self.raw_dir, self.processed_dir, self.metadata_dir]:
             dir_path.mkdir(parents=True, exist_ok=True)
         
@@ -55,17 +54,15 @@ class CMSHospitalETL:
             raw_path = self.raw_dir / filename
             processed_path = self.processed_dir / filename
 
-            # Download raw data if it doesn't exist or needs update
             if not raw_path.exists() or self.needs_update(dataset):
                 self.logger.info(f"Downloading {filename}")
                 df = pd.read_csv(download_url, low_memory=False)
                 df.to_csv(raw_path, index=False)
                 
-                # Process and save transformed data
                 df.columns = [self.to_snake_case(col) for col in df.columns]
                 df.to_csv(processed_path, index=False)
                 
-                # Update metadata
+                
                 with sqlite3.connect(self.metadata_db) as conn:
                     conn.execute(
                         "INSERT OR REPLACE INTO file_metadata (file_id, filename, last_modified, last_processed) VALUES (?, ?, ?, ?)",
